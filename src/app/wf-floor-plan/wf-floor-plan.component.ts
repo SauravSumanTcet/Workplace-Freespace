@@ -10,13 +10,18 @@ import { WfAppService } from '../wf-app.service';
 })
 export class WfFloorPlanComponent implements OnInit {
 
+  //Iterable array of all the desks on floor
   public mainArr = [];
 
+  //Object to store complete floor plan
   public floorPlan;
 
+  //Object to store the desk when one is selected
   public selectedDesk;
+
   constructor(private appService: WfAppService) {
 
+    //If a plan already stored in localstorage, storing in local floorPlan object
     this.floorPlan = this.appService.fetchCurrentFloorPlan();
 
     if (!this.floorPlan) {
@@ -40,6 +45,7 @@ export class WfFloorPlanComponent implements OnInit {
     this.getMainArr();
   }
 
+  //Generating iterable array 
   getMainArr() {
     this.appService.storeCurrentFloorPlan(this.floorPlan);
 
@@ -62,11 +68,10 @@ export class WfFloorPlanComponent implements OnInit {
     })
     colArr.push(rowArr);
 
-    console.log(colArr);
-
     this.mainArr = colArr;
   }
 
+  //Selecting desk
   selectDesk(id, row, col) {
 
     id = id.split('_')
@@ -74,10 +79,6 @@ export class WfFloorPlanComponent implements OnInit {
 
     this.selectedDesk = this.floorPlan.deskList.filter(desk => desk.id == id)[0]
     this.appService.viewDesk(this.selectedDesk);
-
-
-    // this.selectedDesk.isOccupied = !this.selectedDesk.isOccupied;
-
 
     this.appService.storeCurrentFloorPlan(this.floorPlan);
 

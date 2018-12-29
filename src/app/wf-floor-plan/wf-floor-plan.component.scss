@@ -1,6 +1,7 @@
 .main-container{
     display: flex;
     justify-content: space-evenly;
+    text-align: center;
     .floor-plan{
         box-shadow: -11px 12px 25px 0px rgba(0,0,0,0.75);
         .layer{
@@ -28,5 +29,28 @@
     }
     .desk-view{
         width:300px;
+    }
+}
+
+/* Portrait */
+@media screen 
+  and (device-width: 360px) 
+  and (device-height: 640px) 
+  and (-webkit-device-pixel-ratio: 3) 
+  and (orientation: portrait) {
+    .main-container{
+        flex-direction: column;
+    }
+}
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2)
+  and (orientation: portrait) {
+    .main-container{
+        flex-direction: column;
+        .desk-view{
+            margin-top: 40px;
+        }
     }
 }
