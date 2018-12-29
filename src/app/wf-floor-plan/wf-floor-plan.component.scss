@@ -1,0 +1,32 @@
+.main-container{
+    display: flex;
+    justify-content: space-evenly;
+    .floor-plan{
+        box-shadow: -11px 12px 25px 0px rgba(0,0,0,0.75);
+        .layer{
+            #floor{
+                stroke: #000000;
+                fill: #fff;
+                stroke-width: 0;
+            }
+            .desk{
+                cursor: pointer;
+                stroke: #000000;
+                stroke-width: 0.5;
+            }
+            .unoccupied-desk{
+                fill: #f0f0f0;
+            }
+            .occupied-desk{
+                fill: #dbff6c;
+            }
+            .selected-desk{
+                stroke-dasharray: 10;
+                stroke: #ff0000;
+            }
+        }
+    }
+    .desk-view{
+        width:300px;
+    }
+}

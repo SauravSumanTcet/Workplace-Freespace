@@ -1,0 +1,21 @@
+<div class="main-container">
+  <div class="floor-plan">
+    <svg width="400" height="400" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+      <g class="layer">
+        <title>Floor Plan</title>
+        <rect id="floor" [attr.width]="floorPlan.floorWidth"
+          [attr.height]="floorPlan.floorHeight" x="0" y="0" />
+        <ng-container *ngFor="let item of mainArr;let row_i=index;">
+          <ng-container *ngFor="let x of item;let col_i=index;">
+            <rect class="desk" [ngClass]="{'occupied-desk':x.isOccupied,'unoccupied-desk':!x.isOccupied,'selected-desk':selectedDesk?selectedDesk.id==x.id:false}" id="desk_{{x.id}}" 
+              [attr.width]="x.width" [attr.height]="x.height" [attr.x]="col_i*x.width" [attr.y]="row_i*x.height"
+              (click)="selectDesk('desk_'+x.id,row_i,col_i)" />
+          </ng-container>
+        </ng-container>
+      </g>
+    </svg>
+  </div>
+  <div class="desk-view">
+    <app-wf-desk-view></app-wf-desk-view>
+  </div>
+</div>

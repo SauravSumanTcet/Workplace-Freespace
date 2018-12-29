@@ -1,0 +1,72 @@
+<ng-container *ngIf="desk;else noDeskSelected">
+  <table>
+    <thead>
+      <tr>
+        <th colspan="2">
+          Selected Desk Postion Details
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Desk Postion</td>
+        <td>{{desk.id}}</td>
+      </tr>
+      <tr>
+        <td>Chair Id</td>
+        <td>{{desk.chairId}}</td>
+      </tr>
+      <tr>
+        <td>Height</td>
+        <td>{{desk.height}}</td>
+      </tr>
+      <tr>
+        <td>Width</td>
+        <td>{{desk.width}}</td>
+      </tr>
+      <tr>
+        <td>Occupancy</td>
+        <td *ngIf="!isEditable">{{desk.isOccupied?'Yes':'No'}}</td>
+        <td *ngIf="isEditable">
+          <div class="occupancyOption" [ngClass]="{'selectedOccOpt':desk.isOccupied}" (click)="updateOccupancy(true)">Yes</div>
+          <div class="occupancyOption" [ngClass]="{'selectedOccOpt':!desk.isOccupied}" (click)="updateOccupancy(false)">No</div>
+        </td>
+      </tr>
+      <tr *ngIf="desk.isOccupied">
+        <td>Type</td>
+        <td *ngIf="!isEditable">{{desk.type}}</td>
+        <td *ngIf="isEditable">
+          <select (change)="updateType($event.target.value)">
+            <option value="">Select Type</option>
+            <option value="Desktop">Desktop</option>
+            <option value="Laptop">Laptop</option>
+          </select>
+        </td>
+      </tr>
+      <tr *ngIf="desk.isOccupied">
+        <td>User</td>
+        <td *ngIf="!isEditable">{{desk.user}}</td>
+        <td *ngIf="isEditable">
+          <input type="text" placeholder="Enter User Name" (change)="updateUser($event.target.value)">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <ng-container *ngIf="!isEditable;else SaveButton">
+    <button class="action-btn" (click)=toggleEditMode(true)>
+      Edit
+    </button>
+  </ng-container>
+  <ng-template #SaveButton>
+    <button class="action-btn" (click)=toggleEditMode(false)>
+      Save
+    </button>
+  </ng-template>
+
+</ng-container>
+
+<ng-template #noDeskSelected>
+  Select any desk to view its details.
+</ng-template>
