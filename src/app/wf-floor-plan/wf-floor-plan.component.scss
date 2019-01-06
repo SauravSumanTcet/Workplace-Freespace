@@ -4,6 +4,8 @@
     text-align: center;
     .floor-plan{
         box-shadow: -11px 12px 25px 0px rgba(0,0,0,0.75);
+        max-height: 38vw;
+        overflow: auto;
         .layer{
             #floor{
                 stroke: #000000;

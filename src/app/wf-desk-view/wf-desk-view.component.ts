@@ -9,8 +9,8 @@ import { Subscription } from 'rxjs';
 })
 export class WfDeskViewComponent implements OnInit {
   //Lets store the selected desk into desk object
-  desk;
-  deskToViewObserver: Subscription
+  chair;
+  deskToViewObserver: Subscription;
 
 
   //Lets create modes - edit/save the selected desk as per below variable   
@@ -19,8 +19,11 @@ export class WfDeskViewComponent implements OnInit {
   constructor(private appService: WfAppService) {
 
     //Subscribing to the observable set in app.service
-    this.deskToViewObserver = this.appService.stream$.subscribe(data => {
-      this.desk = data;
+    this.deskToViewObserver = this.appService.viewStream$.subscribe(data => {
+      if (data.taskFlag === 'VIEW') {
+        this.isEditable = false;
+        this.chair = data;
+      }
     });
 
   }
@@ -44,21 +47,20 @@ export class WfDeskViewComponent implements OnInit {
 
   //Method to update occupancy
   updateOccupancy(occFlag) {
-    this.desk.isOccupied = occFlag;
+    this.chair.isOccupied = occFlag;
   }
 
   //Method to update desk type
   updateType(val) {
-    this.desk.type = val;
+    this.chair.type = val;
   }
 
-  //Method to update desk user
-  updateUser(val) {
-    this.desk.user = val;
+  updateDepartment(val) {
+    this.chair.department = val;
   }
 
-  //Method to save current state of desk
+  //Method to save current state of chair
   save() {
-    this.appService.updateDesk(this.desk);
+    this.appService.saveChairDetails(this.chair);
   }
 }

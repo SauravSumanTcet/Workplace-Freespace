@@ -1,90 +1,110 @@
 import { Component, OnInit } from '@angular/core';
-import { FloorPlan } from '../model/FloorPlan';
-import { Desk } from '../model/Desk';
 import { WfAppService } from '../wf-app.service';
+import { Constants } from '../constants';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-wf-floor-plan',
   templateUrl: './wf-floor-plan.component.html',
-  styleUrls: ['./wf-floor-plan.component.scss']
+  styleUrls: ['./wf-floor-plan.component.scss'],
+
 })
 export class WfFloorPlanComponent implements OnInit {
-
-  //Iterable array of all the desks on floor
-  public mainArr = [];
-
-  //Object to store complete floor plan
-  public floorPlan;
-
-  //Object to store the desk when one is selected
-  public selectedDesk;
-
+  chairId = 0;
+  deskToViewObserver: Subscription;
+  chairArr = [];
+  markerArr = [];
   constructor(private appService: WfAppService) {
-
-    //If a plan already stored in localstorage, storing in local floorPlan object
-    this.floorPlan = this.appService.fetchCurrentFloorPlan();
-
-    if (!this.floorPlan) {
-      this.floorPlan = new FloorPlan();
-
-      //Hardcoding width and height on purpose
-      this.floorPlan.floorWidth = 400;
-      this.floorPlan.floorHeight = 400;
-      this.floorPlan.deskList = [];
-
-      for (let i = 0; i < this.floorPlan.maxDesks; i++) {
-        let desk: Desk = {
-          id: i, isOccupied: false, type: null, chairId: i, width: 50, height: 50
+    //Subscribing to the observable set in app.service
+    this.deskToViewObserver = this.appService.viewStream$.subscribe(data => {
+      if (data.taskFlag === 'UPDATE') {
+        let chair = this.findChairById(data.id);
+        if (data.isOccupied) {
+          chair['style']['fill'] = Constants.OCCUPIED_CHAIR
+        } else {
+          chair['style']['fill'] = Constants.EMPTY_CHAIR
         }
-
-        this.floorPlan.deskList.push(desk);
       }
-    }
-
-
-    this.getMainArr();
-  }
-
-  //Generating iterable array 
-  getMainArr() {
-    this.appService.storeCurrentFloorPlan(this.floorPlan);
-
-    let colArr = [];
-    let rowArr = [];
-    let rowWidth = 0;
-    let colHeight = 0;
-
-    this.floorPlan.deskList.forEach(desk => {
-      rowWidth += desk.width;
-      if (rowWidth <= this.floorPlan.floorWidth) {
-        rowArr.push(desk);
-      }
-      if (colHeight < this.floorPlan.floorHeight && rowWidth >= this.floorPlan.floorWidth) {
-        colArr.push(rowArr);
-        colHeight += desk.height;
-        rowWidth = 0;
-        rowArr = [];
-      }
-    })
-    colArr.push(rowArr);
-
-    this.mainArr = colArr;
-  }
-
-  //Selecting desk
-  selectDesk(id, row, col) {
-
-    id = id.split('_')
-    id = id[id.length - 1];
-
-    this.selectedDesk = this.floorPlan.deskList.filter(desk => desk.id == id)[0]
-    this.appService.viewDesk(this.selectedDesk);
-
-    this.appService.storeCurrentFloorPlan(this.floorPlan);
-
+    });
   }
 
   ngOnInit() {
 
   }
+
+  ngAfterViewInit() {
+    this.findAllChairs();
+
+    this.markerArr.forEach(element => {
+      this.appService.updateChair(this.appService.fetchChairDetails(element.id));
+    })
+
+  }
+
+  findAllChairs() {
+    var allElements = document.getElementsByTagName("*");
+    for (var i = 0; i < allElements.length; i++) {
+      var element = allElements[i];
+      if (element.getAttribute("sodipodi:nodetypes") === "cssssssss") {
+        this.addCMarker(this.getPosition(element));
+      }
+    }
+  }
+
+  getPosition(el) {
+
+    let bound = el.getBoundingClientRect();
+    let coOrdinates = {
+      x: bound.left - 25,
+      y: bound.top - 100
+    };
+    return coOrdinates;
+
+  }
+
+  addCMarker(coOrdinates) {
+
+    let svg = document.getElementsByTagName('svg')[0]; //Get svg element
+    let cMarker = document.createElementNS("http://www.w3.org/2000/svg", 'circle'); //Create a circle in SVG's namespace
+
+    let chairId = '_chair' + this.chairId++;
+    cMarker.setAttribute("id", chairId);
+    cMarker.setAttribute("cx", coOrdinates.x);
+    cMarker.setAttribute("cy", coOrdinates.y);
+    cMarker.setAttribute("r", "10");
+    cMarker.style.fill = Constants.EMPTY_CHAIR;
+    cMarker.style.cursor = "pointer";
+
+    svg.appendChild(cMarker);
+
+    this.markerArr.push(cMarker);
+
+  }
+
+  findChairById(id) {
+    return this.markerArr.filter(el => el.id === id)[0];
+  }
+
+
+  // Method to invoke when clicked on any chair
+  getChairDetails(event) {
+
+    if (event && event.path[0].tagName === 'circle') {
+      //It's a chair
+      let chairId = event.path[0].id;
+      let chair = this.appService.fetchChairDetails(chairId);
+      //storing x and y co-ordinates in case of new chair
+      if (chair.posX == '' || chair.poxY == '') {
+        let circle = this.findChairById(chairId);
+        chair.posX = Math.round(circle.cx.baseVal.value);
+        chair.posY = Math.round(circle.cy.baseVal.value);
+      }
+      //Let's see if a chair details is already present or accordingly update localStorage
+      this.appService.viewDesk(chair);
+    }
+
+  }
+
+
+
 }
